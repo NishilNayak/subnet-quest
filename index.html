@@ -1,0 +1,264 @@
+<!doctype html>
+<!--
+  Subnet Quest: learn IPv4 addressing and subnetting by playing.
+  Made by Nishil Nayak using Claude (Anthropic's AI assistant).
+  LinkedIn: https://www.linkedin.com/in/nishil-nayak
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Security: only load scripts from this site, fonts from Google Fonts; no plugins, frames or form posts. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Subnet Quest</title>
+  <meta name="description" content="Learn IP addresses and subnetting by playing quick mini-games.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1020'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='13' font-weight='700' text-anchor='middle' fill='%233ef0a8'%3E/24%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home"><span class="logo">/24</span><span>Subnet Quest</span></a>
+    <nav class="nav">
+      <a href="#home">Home</a>
+      <a href="#learn">Learn</a>
+      <a href="#lab">Lab</a>
+      <a href="#play">Play</a>
+    </nav>
+    <div class="hud" title="Your progress">
+      <span class="lvl" id="hud-level">Lv 1</span>
+      <div class="xpbar"><i id="hud-xp"></i></div>
+      <span class="streak" id="hud-streak">🔥 0</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section class="view" id="view-home">
+      <div class="hero">
+        <div class="hero-text">
+          <p class="eyebrow mono">$ ping knowledge</p>
+          <h1>Learn IP addressing &amp; subnetting by <span class="hl">playing</span>.</h1>
+          <p class="lead">Beginner-friendly lessons, a hands-on subnet lab and six mini-games that teach you as you play. Earn XP, build streaks and unlock badges while you go from “what’s a /24?” to solving subnets in your head.</p>
+          <div class="cta">
+            <a class="btn primary" href="#learn">Start learning</a>
+            <a class="btn" href="#play">Jump into games</a>
+          </div>
+        </div>
+        <div class="hero-card mono" aria-hidden="true">
+          <div class="hc-row"><span class="dim">ip</span> 192.168.10.77</div>
+          <div class="hc-row"><span class="dim">bin</span> <span class="n">11000000.10101000.00001010.01</span><span class="h">001101</span></div>
+          <div class="hc-row"><span class="dim">mask</span> /26 → 255.255.255.192</div>
+          <div class="hc-row"><span class="dim">net</span> 192.168.10.64</div>
+          <div class="hc-row"><span class="dim">bcast</span> 192.168.10.127</div>
+          <div class="hc-row"><span class="dim">hosts</span> 62 usable</div>
+        </div>
+      </div>
+
+      <div class="stats" id="home-stats"></div>
+
+      <h2 class="section-title">Never touched networking? Follow this path</h2>
+      <ol class="path">
+        <li><span class="step">1</span><div><b>Why IP addresses exist, and binary</b><p>Lessons 1–2. Flip real switches and watch numbers turn into binary.</p></div><a class="btn" href="#learn">Lessons</a></li>
+        <li><span class="step">2</span><div><b>Practise binary until it feels easy</b><p>Binary Blitz in Practice mode. Tips tell you which switch to flip and why.</p></div><a class="btn" href="#blitz">Binary Blitz</a></li>
+        <li><span class="step">3</span><div><b>IP classes, network &amp; host bits, masks and CIDR</b><p>Lessons 3–4, then Class Clash and Mask Match.</p></div><a class="btn" href="#quiz/classes">Class Clash</a></li>
+        <li><span class="step">4</span><div><b>Subnets, networks &amp; hosts, special ranges</b><p>Lessons 5–8, then Same Network? and IP Detective.</p></div><a class="btn" href="#quiz/same">Same Network?</a></li>
+        <li><span class="step">5</span><div><b>Boss level: solve a full subnet</b><p>Subnet Solver with Guided mode on. Turn it off when you’re ready.</p></div><a class="btn primary" href="#solver">Subnet Solver</a></li>
+      </ol>
+
+      <h2 class="section-title">Badges</h2>
+      <div class="badges" id="badges"></div>
+      <p class="small dim">Progress is saved in this browser only. <button class="linkbtn" id="reset-progress">Reset progress</button></p>
+    </section>
+
+    <!-- LEARN -->
+    <section class="view" id="view-learn" hidden>
+      <h1 class="page-title">Learn</h1>
+      <p class="lead">Eight short lessons that start from zero, so no networking or maths background is needed. Each one ends with a quick check: get it right to earn XP and mark the lesson done.</p>
+      <div class="lessons" id="lessons"></div>
+
+      <h2 class="section-title">Glossary</h2>
+      <dl class="glossary">
+        <div><dt>Bit</dt><dd>A single 0 or 1, the smallest piece of data.</dd></div>
+        <div><dt>Binary</dt><dd>Counting with only 0s and 1s. Each position is worth double the one to its right.</dd></div>
+        <div><dt>Octet</dt><dd>A group of 8 bits. An IPv4 address has four, each worth 0–255.</dd></div>
+        <div><dt>IP address</dt><dd>A device’s address on a network, e.g. 192.168.1.42.</dd></div>
+        <div><dt>Network part</dt><dd>The bits that identify which network (street) a device is on.</dd></div>
+        <div><dt>Host part</dt><dd>The bits that identify the device (house) on that network.</dd></div>
+        <div><dt>Subnet mask</dt><dd>32 bits: 1s mark the network part, 0s mark the host part. E.g. 255.255.255.0.</dd></div>
+        <div><dt>CIDR / prefix</dt><dd>Shorthand for a mask: /24 means 24 network bits (ones).</dd></div>
+        <div><dt>Subnet</dt><dd>A smaller network carved out of a bigger one.</dd></div>
+        <div><dt>Network address</dt><dd>The first address of a subnet (host bits all 0). It names the subnet and isn’t given to a device.</dd></div>
+        <div><dt>Broadcast address</dt><dd>The last address of a subnet (host bits all 1). Sends to every device on it.</dd></div>
+        <div><dt>Usable hosts</dt><dd>Addresses you can give to devices: 2<sup>host bits</sup> − 2.</dd></div>
+        <div><dt>Block size</dt><dd>256 minus the mask value in the interesting octet. How far apart subnets are.</dd></div>
+        <div><dt>IP class</dt><dd>The old system (A–E) that set the mask from the first octet.</dd></div>
+        <div><dt>Private address</dt><dd>Used inside homes and offices (10.x, 172.16–31.x, 192.168.x), not on the internet.</dd></div>
+        <div><dt>Router</dt><dd>A device that moves traffic between different networks.</dd></div>
+        <div><dt>Default gateway</dt><dd>The router a device sends traffic to when the destination is on another network.</dd></div>
+        <div><dt>DHCP</dt><dd>A service that hands out IP addresses automatically.</dd></div>
+        <div><dt>NAT</dt><dd>Lets many private addresses share one public address.</dd></div>
+        <div><dt>Loopback</dt><dd>127.0.0.1, a device talking to itself (“localhost”).</dd></div>
+      </dl>
+    </section>
+
+    <!-- LAB -->
+    <section class="view" id="view-lab" hidden>
+      <h1 class="page-title">Subnet Lab</h1>
+      <p class="lead">Type any IPv4 address and drag the prefix slider. Watch the <span class="tag net">network bits</span> and <span class="tag host">host bits</span> move.</p>
+
+      <div class="panel lab-controls">
+        <label class="field">
+          <span>IP address</span>
+          <input id="lab-ip" class="mono" value="192.168.10.77" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field grow">
+          <span>Prefix length <b class="mono" id="lab-cidr-val">/26</b></span>
+          <input type="range" id="lab-cidr" min="0" max="32" value="26">
+        </label>
+      </div>
+
+      <div class="panel">
+        <div class="bits" id="lab-bits"></div>
+      </div>
+
+      <div class="results" id="lab-results"></div>
+
+      <div class="panel">
+        <h3>Split it into smaller subnets</h3>
+        <label class="field">
+          <span>Borrow <b class="mono" id="lab-split-val">2</b> host bits → <b id="lab-split-count">4</b> subnets</span>
+          <input type="range" id="lab-split" min="0" max="8" value="2">
+        </label>
+        <div class="table-wrap"><table class="subnets mono" id="lab-subnets"></table></div>
+      </div>
+    </section>
+
+    <!-- PLAY -->
+    <section class="view" id="view-play" hidden>
+      <h1 class="page-title">Play</h1>
+      <p class="lead">Pick a game. Each correct answer builds your streak and earns XP.</p>
+      <div class="games" id="games"></div>
+    </section>
+
+    <!-- BINARY BLITZ -->
+    <section class="view" id="view-blitz" hidden>
+      <a class="back" href="#play">← Games</a>
+      <div class="game-head">
+        <h1 class="page-title">Binary Blitz</h1>
+        <div class="game-meta mono">
+          <span>⏱ <b id="blitz-time">60</b>s</span>
+          <span>★ <b id="blitz-score">0</b></span>
+        </div>
+      </div>
+      <div class="panel blitz">
+        <p class="dim center">Flip the bits until they add up to</p>
+        <div class="target mono" id="blitz-target">?</div>
+        <div class="bitrow" id="blitz-bits"></div>
+        <div class="sum mono">= <b id="blitz-sum">0</b> <span class="dim" id="blitz-bin">00000000</span></div>
+        <div class="helper" id="blitz-helper" hidden></div>
+        <div class="row center">
+          <label class="toggle"><input type="checkbox" id="blitz-help" checked> Helper tips</label>
+          <button class="btn" id="blitz-show">Show me how</button>
+          <button class="btn" id="blitz-skip">Skip</button>
+          <button class="btn" id="blitz-end" hidden>Finish practice</button>
+        </div>
+        <div class="blitz-last small center" id="blitz-last"></div>
+        <div class="blitz-steps" id="blitz-steps" hidden></div>
+        <p class="small dim center">Tip: keys <kbd>1</kbd>–<kbd>8</kbd> flip switches 128 → 1.</p>
+
+        <div class="overlay" id="blitz-overlay">
+          <div class="overlay-card" id="blitz-overlay-card">
+            <h2>Binary Blitz</h2>
+            <p>Convert as many numbers to binary as you can in <b>60 seconds</b>.</p>
+            <button class="btn primary" id="blitz-start">Start</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUBNET SOLVER -->
+    <section class="view" id="view-solver" hidden>
+      <a class="back" href="#play">← Games</a>
+      <div class="game-head">
+        <h1 class="page-title">Subnet Solver</h1>
+        <div class="seg" id="solver-diff" role="group" aria-label="Difficulty">
+          <button data-diff="easy" class="on">Easy</button>
+          <button data-diff="medium">Medium</button>
+          <button data-diff="hard">Hard</button>
+        </div>
+      </div>
+      <div class="panel">
+        <label class="toggle guided-toggle"><input type="checkbox" id="solver-guided" checked> <span><b>Guided mode</b>: a tip under each box tells you how to work it out, and a box turns green as soon as it’s right</span></label>
+        <p class="dim">Work out everything about this address:</p>
+        <div class="problem mono" id="solver-problem"></div>
+        <form class="solver-grid" id="solver-form" autocomplete="off">
+          <label class="field"><span>Subnet mask</span><input class="mono" data-f="mask" placeholder="255.255.255.0"></label>
+          <label class="field"><span>Network address</span><input class="mono" data-f="net" placeholder="x.x.x.x"></label>
+          <label class="field"><span>Broadcast address</span><input class="mono" data-f="bcast" placeholder="x.x.x.x"></label>
+          <label class="field"><span>First usable host</span><input class="mono" data-f="first" placeholder="x.x.x.x"></label>
+          <label class="field"><span>Last usable host</span><input class="mono" data-f="last" placeholder="x.x.x.x"></label>
+          <label class="field"><span>Usable hosts</span><input class="mono" data-f="hosts" placeholder="e.g. 62" inputmode="numeric"></label>
+          <div class="row solver-actions">
+            <button type="submit" class="btn primary">Check</button>
+            <button type="button" class="btn" id="solver-hint">Hint</button>
+            <button type="button" class="btn" id="solver-reveal">Show answer</button>
+            <button type="button" class="btn" id="solver-next">Next problem →</button>
+          </div>
+        </form>
+        <div class="feedback" id="solver-feedback" hidden></div>
+      </div>
+    </section>
+
+    <!-- QUIZ (shared by Mask Match, Same Network?, IP Detective) -->
+    <section class="view" id="view-quiz" hidden>
+      <a class="back" href="#play">← Games</a>
+      <div class="game-head">
+        <h1 class="page-title" id="quiz-title">Quiz</h1>
+        <div class="game-meta mono">
+          <span>Q <b id="quiz-num">1</b>/10</span>
+          <span>★ <b id="quiz-score">0</b></span>
+        </div>
+      </div>
+      <div class="progress"><i id="quiz-progress"></i></div>
+      <div class="panel intro" id="quiz-intro" hidden></div>
+      <div class="panel" id="quiz-body">
+        <div class="prompt" id="quiz-prompt"></div>
+        <div class="options" id="quiz-options"></div>
+        <div class="feedback hintf" id="quiz-hintbox" hidden></div>
+        <div class="feedback" id="quiz-feedback" hidden></div>
+        <div class="row spread">
+          <button class="btn" id="quiz-hint">💡 Hint</button>
+          <button class="btn primary" id="quiz-next" hidden>Next →</button>
+        </div>
+      </div>
+      <div class="panel center" id="quiz-end" hidden></div>
+      <details class="panel cheat" id="quiz-cheat">
+        <summary>📋 Cheat sheet</summary>
+        <div id="quiz-cheat-body"></div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer small">
+    <p class="made-by">
+      Made by <b>Nishil Nayak</b>
+      <span class="dim" aria-hidden="true">·</span>
+      <a class="li-link" href="https://www.linkedin.com/in/nishil-nayak" target="_blank" rel="noopener noreferrer">
+        <svg class="li-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+          <rect width="24" height="24" rx="4" fill="currentColor"/>
+          <path fill="var(--surface)" d="M6.94 9.5H4.5V19h2.44V9.5zM5.72 5a1.41 1.41 0 1 0 0 2.82 1.41 1.41 0 0 0 0-2.82zM19.5 13.6c0-2.6-1.39-4.29-3.66-4.29-1.13 0-1.98.62-2.38 1.27V9.5h-2.34V19h2.44v-4.9c0-1.29.6-2.2 1.72-2.2 1.08 0 1.78.78 1.78 2.2V19h2.44v-5.4z"/>
+        </svg>
+        LinkedIn
+      </a>
+    </p>
+    <p class="dim">Subnet Quest · IPv4 practice · built with Claude</p>
+  </footer>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
